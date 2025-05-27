@@ -1,0 +1,12 @@
+We, the students of B.Tech in Artificial Intelligence and Data Science from St. Xavier's Catholic College of Engineering, are excited to present our team project, 
+
+Project Number 11. In this project, 
+
+we developed a text-to-speech tool designed to convert written content into natural-sounding speech.
+
+This innovative project uses advanced AI techniques to analyze the language structure of the input text, synthesizing it into coherent and clear speech.
+ It has a wide array of applications, including creating audio explanations for presentations, assisting individuals with visual impairments, and enhancing educational tools. By combining the power of AI with practical use cases, this project holds great promise for various fields requiring efficient communication.
+
+
+ urls : https://www.artificial-intelligence.blog/
+          https://365datascience.com/blog/

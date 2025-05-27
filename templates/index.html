@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Article Reader with Space Background</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .space-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            overflow: hidden;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .star {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        .asteroid {
+            position: absolute;
+            background-color: #8B4513;
+            border-radius: 50%;
+            animation: move-asteroid linear infinite;
+        }
+
+        .nebula {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.4"/></svg>');
+            opacity: 0.3;
+            animation: nebula-move 100s linear infinite;
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+
+        @keyframes move-asteroid {
+            from { transform: translate(-100px, -100px); }
+            to { transform: translate(calc(100vw + 100px), calc(100vh + 100px)); }
+        }
+
+        @keyframes nebula-move {
+            from { transform: translate(-50%, -50%); }
+            to { transform: translate(0, 0); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #b388ff;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(179, 136, 255, 0.5);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #4a4a4a;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: rgba(42, 42, 42, 0.8);
+            color: #e0e0e0;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #b388ff;
+            box-shadow: 0 0 0 3px rgba(179, 136, 255, 0.3);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #b388ff;
+            font-weight: 600;
+        }
+
+        button {
+            background-color: #862bfd;
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #651fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(124, 77, 255, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        #audioPlayer {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: rgba(50, 50, 50, 0.8);
+            border-radius: 5px;
+            display: none;
+        }
+
+        #audioPlayer.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        #statusMessage {
+            text-align: center;
+            margin-top: 1rem;
+            font-style: italic;
+            color: #b388ff;
+        }
+
+        #loadingBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #7c4dff;
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .speed-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #speed {
+            display: none; /* Hide the speed slider */
+        }
+
+        #speedValue {
+            display: none; /* Hide the speed value text */
+        }
+
+        #voiceSelect {
+            display: none; /* Hide the voice select dropdown */
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                margin: 4rem auto;
+                padding: 3rem;
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            .button-group {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="space-background">
+        <div class="stars"></div>
+        <div class="nebula"></div>
+    </div>
+    <div id="loadingBar"></div>
+    <div class="container">
+        <h1>Enhanced Article Reader</h1>
+        <input type="text" id="url" placeholder="Enter Article URL">
+        <textarea id="customText" rows="4" placeholder="Or, enter custom text to read aloud..."></textarea>
+        
+        <select id="voiceSelect">
+            <option value="default">Default</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+        
+        <div class="speed-container">
+            <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
+            <span id="speedValue">1.0x</span>
+        </div>
+        
+        <div class="button-group">
+            <button id="generateAudio">Generate Audio</button>
+            <button id="textToAudio">Text to Audio</button>
+            <button id="clearInputs">Clear Inputs</button>
+        </div>
+        
+        <div id="audioPlayer">
+            <h2>Audio Player</h2>
+            <audio id="audio" controls>
+                <source id="audioSource" src="" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+            <button id="downloadAudio">Download Audio</button>
+            <div id="statusMessage">Ready to generate audio</div>
+        </div>
+    </div>
+
+    <script>
+        // Space background animation
+        function createStars() {
+            const stars = document.querySelector('.stars');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 2}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDuration = `${Math.random() * 3 + 1}s`;
+                stars.appendChild(star);
+            }
+        }
+
+        function createAsteroids() {
+    const spaceBackground = document.querySelector('.space-background');
+    
+    // Clear any existing asteroids before adding new ones
+    spaceBackground.innerHTML = '';
+
+    for (let i = 0; i < 100; i++) {  // Increased the count for more asteroids
+        const asteroid = document.createElement('div');
+        asteroid.className = 'asteroid';
+        
+        // Set a random size for the asteroid, slightly reduced for a denser effect
+        const size = Math.random() * 4 + 2;  // Reduced max size to 6px
+        asteroid.style.width = `${size}px`;
+        asteroid.style.height = `${size}px`;
+
+        // Position the asteroid randomly on the screen
+        asteroid.style.left = `${Math.random() * 100}%`;
+        asteroid.style.top = `${Math.random() * 100}%`;
+
+        // Set a random speed for the asteroid's animation (faster for smaller asteroids)
+        const duration = Math.random() * 20 + 10;
+        asteroid.style.animationDuration = `${duration}s`;
+        
+        // Add a delay before the asteroid's movement starts
+        asteroid.style.animationDelay = `${Math.random() * duration}s`;
+
+        // Append the asteroid to the space background
+        spaceBackground.appendChild(asteroid);
+    }
+}
+
+
+        createStars();
+        createAsteroids();
+
+        // Main functionality
+        const loadingBar = document.getElementById('loadingBar');
+        const speedInput = document.getElementById('speed');
+        const speedValue = document.getElementById('speedValue');
+        const generateAudioBtn = document.getElementById('generateAudio');
+        const textToAudioBtn = document.getElementById('textToAudio');
+        const clearInputsBtn = document.getElementById('clearInputs');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audio = document.getElementById('audio');
+        const audioSource = document.getElementById('audioSource');
+        const downloadAudioBtn = document.getElementById('downloadAudio');
+        const statusMessage = document.getElementById('statusMessage');
+
+        speedInput.addEventListener('input', () => {
+            speedValue.textContent = `${speedInput.value}x`;
+        });
+
+        function showLoading() {
+            loadingBar.style.transform = 'scaleX(0.7)';
+        }
+
+        function completeLoading() {
+            loadingBar.style.transform = 'scaleX(1)';
+            setTimeout(() => {
+                loadingBar.style.transform = 'scaleX(0)';
+            }, 300);
+        }
+
+        async function fetchAudio(endpoint, payload) {
+            showLoading();
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error((await response.json()).error || 'An error occurred');
+                }
+                const data = await response.json();
+                completeLoading();
+                return data;
+            } catch (error) {
+                completeLoading();
+                alert(`Error generating audio: ${error.message}`);
+                statusMessage.textContent = "Failed to generate audio";
+            }
+        }
+
+        function setupAudioPlayer(audioUrl) {
+            audioSource.src = audioUrl;
+            audio.load();
+            audioPlayer.classList.add('show');
+            statusMessage.textContent = "Audio is ready to play!";
+            downloadAudioBtn.onclick = () => window.location.href = audioUrl;
+        }
+
+        generateAudioBtn.addEventListener('click', async () => {
+            const url = document.getElementById('url').value;
+            const customText = document.getElementById('customText').value;
+            const voice = document.getElementById('voiceSelect').value;
+            const speed = speedInput.value;
+
+            if (url || customText) {
+                const data = await fetchAudio('/generate_audio', { url, custom_text: customText, voice, speed });
+                if (data && data.audio_url) setupAudioPlayer(data.audio_url);
+            } else {
+                alert("Please enter a valid URL or custom text.");
+            }
+        });
+
+        textToAudioBtn.addEventListener('click', async () => {
+            const customText = document.getElementById('customText').value;
+            const voice = document.getElementById('voiceSelect').value;
+            const speed = speedInput.value;
+
+            if (customText) {
+                const data = await fetchAudio('/text_to_audio', { custom_text: customText, voice, speed });
+                if (data && data.audio_url) setupAudioPlayer(data.audio_url);
+            } else {
+                alert("Please enter custom text.");
+            }
+        });
+
+        clearInputsBtn.addEventListener('click', () => {
+            document.getElementById('url').value = '';
+            document.getElementById('customText').value = '';
+            document.getElementById('voiceSelect').value = 'default';
+            speedInput.value = 1;
+            speedValue.textContent = '1.0x';
+            audioPlayer.classList.remove('show');
+            statusMessage.textContent = 'Ready to generate audio';
+            
+        });
+    </script>
+</body>
+</html>
